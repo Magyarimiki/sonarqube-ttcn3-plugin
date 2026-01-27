@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.eclipse.sonarttcn3</groupId>
+	<!-- it's recommended to follow the pattern "sonar-{key}-plugin", for
+	example "sonar-myphp-plugin" -->
+	<artifactId>sonarqube-ttcn3-plugin</artifactId>
+	<version>0.0.6</version>
+	<packaging>sonar-plugin</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<sonar.apiVersion>10.11.0.2468</sonar.apiVersion>
+		<sonar.testingHarnessVersion>10.7.0.96327</sonar.testingHarnessVersion>
+		<jdk.min.version>17</jdk.min.version>
+		<sonar.sources>src/main/java,src/main/js</sonar.sources>
+		<maven.compiler.source>17</maven.compiler.source>
+     	<maven.compiler.target>17</maven.compiler.target>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sonarsource.api.plugin</groupId>
+			<artifactId>sonar-plugin-api</artifactId>
+			<version>${sonar.apiVersion}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.17.0</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>titan.language-server/lsp/target/generated-sources/annotations/TitanRules/</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+				<artifactId>sonar-packaging-maven-plugin</artifactId>
+				<version>1.18.0.372</version>
+				<extensions>true</extensions>
+				<configuration>
+					<pluginDescription>Sonar ttcn3</pluginDescription>
+					<pluginClass>org.eclipse.sonarttcn3.TitanPlugin</pluginClass>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<executions>
+					<execution>
+						<configuration>
+							<excludes>
+								<exclude>titan.language-server/**</exclude>
+							</excludes>
+						</configuration>
+						<id>compile-project</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
