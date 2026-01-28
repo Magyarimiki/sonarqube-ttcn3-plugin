@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -39,6 +38,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 	private static final String DEFAULT_REPORT_PATH = ".titan_compile"; 
 	private static final String REPORT_REGEX_DEF = "sonar.titan.regex";
 	private static final String DEFAULT_REGEX_DEF = "(?<file>[^:]+):::(?<line>[0-9]+):::(?<message>.+):::(?<rulekey>.+)";
+	private static final String TTCN3 = "ttcn3";
 	
 	private static final String MATCH_GROUP_FILE = "file";
 	private static final String MATCH_GROUP_LINE = "line";
@@ -58,14 +58,13 @@ public class Ttcn3Sensor implements ProjectSensor {
 	
 	public Ttcn3Sensor(CheckFactory checkFactory, ActiveRules activeRules) {
 		this.activeRules = activeRules;	
-		checks = checkFactory.create("ttcn3");
+		checks = checkFactory.create(TTCN3);
 		checks.addAnnotatedChecks(TitanRulesDefinition.getRules());
 	}
 	
 	@Override
 	public void describe(SensorDescriptor descriptor) {
 		descriptor.name(getClass().getName());
-//		descriptor.onlyOnLanguages(Ttcn3Language.KEY);
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 		boolean isMissing = false;
 		for (final String group : groups) {
 			if (!regex.contains("(?<" + group + ">")) {
-				LOG.error("Mandatory named capture group `" + group + "` is missing from regex");
+				LOG.error("Mandatory named capture group `{0}` is missing from regex", group);
 				isMissing = true;
 			}
 		}
@@ -106,7 +105,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 
 	protected void processReport() {
 	    String reportRegex = getRegex();
-	    LOG.info("Using regex " + reportRegex);
+	    LOG.info("Using regex {0}", reportRegex);
 
 	    pattern = null;
 	    try {
@@ -119,14 +118,14 @@ public class Ttcn3Sensor implements ProjectSensor {
 			return;
 		}
 
-	    LOG.info("Report path: " + getReportPath());
+	    LOG.info("Report path: {0}", getReportPath());
 		final String reportPath = getReportPath();
 
 	    fs = context.fileSystem();
 	    p = fs.predicates();
 		final InputFile reportFile = fs.inputFile(p.hasPath(reportPath));
 		if (reportFile == null) {
-			LOG.info("Report file not found: " + reportPath + ", executing compiler");
+			LOG.info("Report file `{0}` not found, executing compiler", reportFile);
 			final CommandLineConfiguration config = new CommandLineConfiguration();
 			config.rootFolder = fs.baseDir().getAbsolutePath();
 			config.saFormat = "%f:::%l:::%m:::%k";
@@ -177,13 +176,13 @@ public class Ttcn3Sensor implements ProjectSensor {
 					return;
 				}
 			} catch (NumberFormatException e) {
-				LOG.warn("Illegal line numer" + lineNr);
+				LOG.warn("Illegal line number {0}", lineNr);
 				return;
 			}
 			
-			RuleKey key = RuleKey.of("ttcn3", rulekey);
+			RuleKey key = RuleKey.of(TTCN3, rulekey);
 			if (activeRules.find(key) == null) {
-				key = RuleKey.of("ttcn3", "Titanium");
+				key = RuleKey.of(TTCN3, "Titanium");
 			}
 			if (fs.hasFiles(p.hasPath(filename))) {
 				InputFile input = fs.inputFile(p.hasPath(filename));
@@ -198,8 +197,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 						.overrideSeverity(Severity.MINOR)
 						.save();
 				} catch (IllegalArgumentException e) {
-					LOG.warn("File `" + filename + "` has no line number " + lineNr);
-					return;
+					LOG.warn("File `{0}` has no line number {1}", filename, lineNr);
 				}
 			}
 		}

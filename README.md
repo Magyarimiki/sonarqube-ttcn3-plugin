@@ -38,10 +38,9 @@ First, build Titan language server as a dependency and install it to the local m
 ```
 
  - copy the plugin to the Sonarqube plugin directory
- 
+
 ```
 cp target/titan-sonar-plugin-x.y.x.jar ${path_to_sonarqube}/extensions/plugins/
-
 ```
 
  - restart Sonarqube to load the plugin.
