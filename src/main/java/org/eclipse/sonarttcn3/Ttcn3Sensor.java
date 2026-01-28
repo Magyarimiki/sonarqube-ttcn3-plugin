@@ -9,11 +9,15 @@ package org.eclipse.sonarttcn3;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.sonarttcn3.rules.TitanRulesDefinition;
+import org.eclipse.titan.lsp.commandline.CommandLineConfiguration;
+import org.eclipse.titan.lsp.commandline.CommandLineExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -46,6 +50,11 @@ public class Ttcn3Sensor implements ProjectSensor {
 	protected SensorContext context;
 	private final Checks<Rule> checks;
 	private final ActiveRules activeRules;
+
+	private int lineNr;
+	private Pattern pattern;
+	private FileSystem fs;
+	private FilePredicates p;
 	
 	public Ttcn3Sensor(CheckFactory checkFactory, ActiveRules activeRules) {
 		this.activeRules = activeRules;	
@@ -99,7 +108,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 	    String reportRegex = getRegex();
 	    LOG.info("Using regex " + reportRegex);
 
-	    Pattern pattern = null;
+	    pattern = null;
 	    try {
 	    	pattern = Pattern.compile(reportRegex);
 	    } catch (PatternSyntaxException e) {
@@ -113,64 +122,86 @@ public class Ttcn3Sensor implements ProjectSensor {
 	    LOG.info("Report path: " + getReportPath());
 		final String reportPath = getReportPath();
 
-	    FileSystem fs = context.fileSystem();
-	    FilePredicates p = fs.predicates();
+	    fs = context.fileSystem();
+	    p = fs.predicates();
 		final InputFile reportFile = fs.inputFile(p.hasPath(reportPath));
 		if (reportFile == null) {
-			LOG.error("Report file not found: " + reportPath);
+			LOG.info("Report file not found: " + reportPath + ", executing compiler");
+			final CommandLineConfiguration config = new CommandLineConfiguration();
+			config.rootFolder = fs.baseDir().getAbsolutePath();
+			config.saFormat = "%f:::%l:::%m:::%k";
+			config.suppressStdout = true;
+			final CommandLineExecutor executor = new CommandLineExecutor(config);
+			final String analyzerOutput = executor.runCommandLineAnalyzer();
+
+			try (BufferedReader br = new BufferedReader(new StringReader(analyzerOutput))) {
+				lineNr = 0;
+				String line;
+				while ((line = br.readLine()) != null) {
+					processLine(line);
+            	}
+			}
+	        catch (IOException e) {
+	            e.printStackTrace();
+	        }
+
 			return;
 		}
 
 		for (InputFile file : fs.inputFiles(p.hasFilename(getReportPath()))) {
 			try (BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
 				String str;
-				int lineNr = 0;
+				lineNr = 0;
 				while ((str = br.readLine()) != null) {
-					Matcher matcher = pattern.matcher(str);
-					if (matcher.matches()) {
-						final String filename = matcher.group(MATCH_GROUP_FILE);
-						final String line = matcher.group(MATCH_GROUP_LINE);
-						final String message = matcher.group(MATCH_GROUP_MESSAGE);
-						String rulekey = matcher.group(MATCH_GROUP_RULEKEY);
-						
-						try {
-							/** Sonarqube line numbers start from 1, while titan indexes from 0 */
-							lineNr = Integer.parseInt(line) + 1;
-							if (lineNr < 1) {
-								continue;
-							}
-						} catch (NumberFormatException e) {
-							LOG.warn("Illegal line numer" + lineNr);
-							continue;
-						}
-						
-						RuleKey key = RuleKey.of("ttcn3", rulekey);
-						if (activeRules.find(key) == null) {
-							key = RuleKey.of("ttcn3", "Titanium");
-						}
-						if (fs.hasFiles(p.hasPath(filename))) {
-							InputFile input = fs.inputFile(p.hasPath(filename));
-							NewIssue newIssue = context.newIssue();
-							try {
-								newIssue
-									.forRule(key)
-									.at(newIssue.newLocation()
-										.on(input)
-										.at(input.selectLine(lineNr))
-										.message(message))
-									.overrideSeverity(Severity.MINOR)
-									.save();
-							} catch (IllegalArgumentException e) {
-								LOG.warn("File `" + filename + "` has no line number " + lineNr);
-								continue;
-							}
-						}
-					}
+					processLine(str);
             	}
 			}
 	        catch (IOException e) {
 	            LOG.error("Error while reading compilation file.");
 	        }
+		}
+	}
+
+	private void processLine(final String inputLine) {
+		Matcher matcher = pattern.matcher(inputLine);
+		if (matcher.matches()) {
+			final String filename = matcher.group(MATCH_GROUP_FILE);
+			final String line = matcher.group(MATCH_GROUP_LINE);
+			final String message = matcher.group(MATCH_GROUP_MESSAGE);
+			String rulekey = matcher.group(MATCH_GROUP_RULEKEY);
+			
+			try {
+				/** Sonarqube line numbers start from 1, while titan indexes from 0 */
+				lineNr = Integer.parseInt(line) + 1;
+				if (lineNr < 1) {
+					return;
+				}
+			} catch (NumberFormatException e) {
+				LOG.warn("Illegal line numer" + lineNr);
+				return;
+			}
+			
+			RuleKey key = RuleKey.of("ttcn3", rulekey);
+			if (activeRules.find(key) == null) {
+				key = RuleKey.of("ttcn3", "Titanium");
+			}
+			if (fs.hasFiles(p.hasPath(filename))) {
+				InputFile input = fs.inputFile(p.hasPath(filename));
+				NewIssue newIssue = context.newIssue();
+				try {
+					newIssue
+						.forRule(key)
+						.at(newIssue.newLocation()
+							.on(input)
+							.at(input.selectLine(lineNr))
+							.message(message))
+						.overrideSeverity(Severity.MINOR)
+						.save();
+				} catch (IllegalArgumentException e) {
+					LOG.warn("File `" + filename + "` has no line number " + lineNr);
+					return;
+				}
+			}
 		}
 	}
 }

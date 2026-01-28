@@ -7,7 +7,7 @@
 	<!-- it's recommended to follow the pattern "sonar-{key}-plugin", for
 	example "sonar-myphp-plugin" -->
 	<artifactId>sonarqube-ttcn3-plugin</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7</version>
 	<packaging>sonar-plugin</packaging>
 
 	<properties>
@@ -32,6 +32,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.17.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.titan</groupId>
+			<artifactId>org.eclipse.titan.lsp</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
