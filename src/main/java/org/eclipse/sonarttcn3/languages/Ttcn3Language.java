@@ -22,6 +22,11 @@ public class Ttcn3Language extends AbstractLanguage {
 	
 	@Override
 	public String[] getFileSuffixes() {
-		return new String[] { "ttcn" };
+		return new String[] { 
+			"ttcn",
+			"ttcn3",
+			"ttcnpp",
+			"asn"
+		};
 	}
 }

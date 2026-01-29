@@ -64,7 +64,9 @@ public class Ttcn3Sensor implements ProjectSensor {
 	
 	@Override
 	public void describe(SensorDescriptor descriptor) {
-		descriptor.name(getClass().getName());
+		descriptor
+			.name(getClass().getName())
+			.onlyOnLanguage(TTCN3);
 	}
 
 	@Override
