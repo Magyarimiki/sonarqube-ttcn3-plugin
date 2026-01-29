@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.eclipse.sonarttcn3.languages.Ttcn3Language;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.eclipse.sonarttcn3.rules.TitaniumRules;
 
 public class TitanRulesDefinition implements RulesDefinition {
 	private static List<NewRule> rules = new ArrayList<>(); 
