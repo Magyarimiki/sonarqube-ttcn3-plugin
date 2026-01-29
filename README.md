@@ -10,19 +10,7 @@ The plugin uses the **Titanium** static analyzer tool.
 
 *The project is in experimental phase.*
 
-## Quick setup
-
-### Building Titan compiler
-
-First, build Titan language server as a dependency and install it to the local maven repository.
-
-```
- git clone https://gitlab.eclipse.org/eclipse/titan/titan.language-server.git
- cd titan.language-server/lsp
- mvn clean install
-```
-
-### Building and installing the plugin
+## Building and installing the plugin
 
  - clone the repository
 
@@ -30,14 +18,25 @@ First, build Titan language server as a dependency and install it to the local m
  https://github.com/Magyarimiki/sonarqube-ttcn3-plugin.git
 ```
 
- - Compile the plugin
+ - Build and install Titan compiler
+
+Make sure to clone the repository into the root directory of the plugin source.
 
 ```
  cd sonarqube-ttcn3-plugin
+ git clone https://gitlab.eclipse.org/eclipse/titan/titan.language-server.git
+ cd titan.language-server/lsp
+ mvn clean install
+```
+
+ - Compile the plugin
+
+```
+ cd ../..
  mvn clean package
 ```
 
- - copy the plugin to the Sonarqube plugin directory
+ - Copy the plugin to the Sonarqube plugin directory
 
 ```
 cp target/titan-sonar-plugin-x.y.x.jar ${path_to_sonarqube}/extensions/plugins/
