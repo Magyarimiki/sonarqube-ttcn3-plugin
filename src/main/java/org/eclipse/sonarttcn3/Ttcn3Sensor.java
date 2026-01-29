@@ -9,6 +9,7 @@ package org.eclipse.sonarttcn3;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,7 +52,6 @@ public class Ttcn3Sensor implements ProjectSensor {
 	private final Checks<Rule> checks;
 	private final ActiveRules activeRules;
 
-	private int lineNr;
 	private Pattern pattern;
 	private FileSystem fs;
 	private FilePredicates p;
@@ -135,12 +135,8 @@ public class Ttcn3Sensor implements ProjectSensor {
 			final CommandLineExecutor executor = new CommandLineExecutor(config);
 			final String analyzerOutput = executor.runCommandLineAnalyzer();
 
-			try (BufferedReader br = new BufferedReader(new StringReader(analyzerOutput))) {
-				lineNr = 0;
-				String line;
-				while ((line = br.readLine()) != null) {
-					processLine(line);
-            	}
+			try (final BufferedReader br = new BufferedReader(new StringReader(analyzerOutput))) {
+				processReader(br);
 			}
 	        catch (IOException e) {
 	            e.printStackTrace();
@@ -149,13 +145,9 @@ public class Ttcn3Sensor implements ProjectSensor {
 			return;
 		}
 
-		for (InputFile file : fs.inputFiles(p.hasFilename(getReportPath()))) {
-			try (BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
-				String str;
-				lineNr = 0;
-				while ((str = br.readLine()) != null) {
-					processLine(str);
-            	}
+		for (final InputFile file : fs.inputFiles(p.hasFilename(getReportPath()))) {
+			try (final BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
+				processReader(br);
 			}
 	        catch (IOException e) {
 	            LOG.error("Error while reading compilation file.");
@@ -163,14 +155,22 @@ public class Ttcn3Sensor implements ProjectSensor {
 		}
 	}
 
+	private void processReader(final BufferedReader reader) throws IOException {
+		String str;
+		while ((str = reader.readLine()) != null) {
+			processLine(str);
+		}
+	}
+
 	private void processLine(final String inputLine) {
-		Matcher matcher = pattern.matcher(inputLine);
+		final Matcher matcher = pattern.matcher(inputLine);
 		if (matcher.matches()) {
 			final String filename = matcher.group(MATCH_GROUP_FILE);
 			final String line = matcher.group(MATCH_GROUP_LINE);
 			final String message = matcher.group(MATCH_GROUP_MESSAGE);
 			String rulekey = matcher.group(MATCH_GROUP_RULEKEY);
 			
+			int lineNr = 0;
 			try {
 				/** Sonarqube line numbers start from 1, while titan indexes from 0 */
 				lineNr = Integer.parseInt(line) + 1;
@@ -187,8 +187,8 @@ public class Ttcn3Sensor implements ProjectSensor {
 				key = RuleKey.of(TTCN3, "Titanium");
 			}
 			if (fs.hasFiles(p.hasPath(filename))) {
-				InputFile input = fs.inputFile(p.hasPath(filename));
-				NewIssue newIssue = context.newIssue();
+				final InputFile input = fs.inputFile(p.hasPath(filename));
+				final NewIssue newIssue = context.newIssue();
 				try {
 					newIssue
 						.forRule(key)
