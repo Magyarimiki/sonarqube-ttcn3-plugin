@@ -13,7 +13,7 @@ import org.sonar.api.server.rule.RulesDefinition.NewRule;
 public class Ttcn3QualityProfile implements BuiltInQualityProfilesDefinition {
 	@Override
 	public void define(Context context) {
-		NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("Titan Rules", Ttcn3Language.KEY);
+		NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile("Titanium", Ttcn3Language.KEY);
 	    profile.setDefault(true);
 	    
 	    for (NewRule rule : TitanRulesDefinition.getRules()) {
