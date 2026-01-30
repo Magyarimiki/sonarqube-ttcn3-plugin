@@ -1,14 +1,14 @@
 # Titan SonarQube plugin
+*The project is in experimental phase.*
 
 Thanks for your interest in this project.
 
 ## Project description
 This plugin supports the TTCN-3 language for Sonarqube.
-The plugin uses the **Titanium** static analyzer tool.
+The plugin uses the **Titan** compiler and its bundled **Titanium** static analyzer tool.
 
 [Read more about Titan and Titanium](https://projects.eclipse.org/projects/tools.titan)
 
-*The project is in experimental phase.*
 
 ## Building and installing the plugin
 
