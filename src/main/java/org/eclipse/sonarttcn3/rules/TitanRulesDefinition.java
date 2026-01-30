@@ -8,6 +8,8 @@ package org.eclipse.sonarttcn3.rules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.sonarttcn3.languages.Ttcn3Language;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -27,10 +29,24 @@ public class TitanRulesDefinition implements RulesDefinition {
 			.addTags("titan"));
 		
 		for (final TitaniumRule titaniumRule : TitaniumRules.importedRules) {
-			rules.add(repository.createRule(titaniumRule.getKey())
+			final NewRule rule = repository.createRule(titaniumRule.getKey())
 		      .setName(titaniumRule.getName())
 		      .addTags("titan")
-		      .setHtmlDescription(titaniumRule.getDescription()));
+		      .setHtmlDescription(titaniumRule.getDescription());
+			
+			final String tagRegex = "^[a-z0-9\\+#\\-\\.]+$";
+			final Pattern pattern = Pattern.compile(tagRegex);
+			if (titaniumRule.getTags().length > 0) {
+				for (final String tag : titaniumRule.getTags()) {
+					final Matcher matcher = pattern.matcher(tag);
+					if (!matcher.matches()) {
+						continue;
+					}
+					rule.addTags(tag);
+				}
+			}
+
+			rules.add(rule);
 		}
 		repository.done();
 	}

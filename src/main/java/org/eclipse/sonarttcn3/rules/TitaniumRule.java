@@ -10,11 +10,13 @@ public class TitaniumRule {
 	private String key;
 	private String name;
 	private String description;
+	private String[] tags;
 
-	TitaniumRule(final String key, final String name, final String description) {
+	TitaniumRule(final String key, final String name, final String description, final String[] tags) {
 		this.key = key;
 		this.name = name;
 		this.description = description;
+		this.tags = tags;
 	}
 	
 	public String getKey() {
@@ -27,5 +29,9 @@ public class TitaniumRule {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public String[] getTags() {
+		return tags;
 	}
 }
