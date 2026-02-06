@@ -6,21 +6,26 @@
  ******************************************************************************/
 package org.eclipse.sonarttcn3.rules;
 
+import org.sonar.api.rule.Severity;
+
 public class TitaniumRule {
 	private String key;
 	private String name;
 	private String description;
+	private String severity;
 	private String[] tags;
 
-	TitaniumRule(final String key, final String name, final String description, final String[] tags) {
+	TitaniumRule(final String key, final String name, final String description,
+		final String severity, final String[] tags) {
 		this.key = key;
 		this.name = name;
 		this.description = description;
+		this.severity = severity;
 		this.tags = tags;
 	}
 	
 	public String getKey() {
-		return key;
+		return key;	
 	}
 
 	public String getName() {
@@ -29,6 +34,10 @@ public class TitaniumRule {
 
 	public String getDescription() {
 		return description;
+	}
+
+	public String getSeverity() {
+		return severity;
 	}
 
 	public String[] getTags() {

@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.sonarttcn3.languages.Ttcn3Language;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.eclipse.sonarttcn3.rules.TitaniumRules;
 
@@ -32,6 +33,7 @@ public class TitanRulesDefinition implements RulesDefinition {
 			final NewRule rule = repository.createRule(titaniumRule.getKey())
 		      .setName(titaniumRule.getName())
 		      .addTags("titan")
+			  .setSeverity(titaniumRule.getSeverity())
 		      .setHtmlDescription(titaniumRule.getDescription());
 			
 			final String tagRegex = "^[a-z0-9\\+#\\-\\.]+$";

@@ -175,7 +175,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 			final String filename = matcher.group(MATCH_GROUP_FILE);
 			final String line = matcher.group(MATCH_GROUP_LINE);
 			final String message = matcher.group(MATCH_GROUP_MESSAGE);
-			String rulekey = matcher.group(MATCH_GROUP_RULEKEY);
+			final String rulekey = matcher.group(MATCH_GROUP_RULEKEY);
 			
 			int lineNr = 0;
 			try {
