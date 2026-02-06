@@ -36,7 +36,10 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.scanner.sensor.ProjectSensor;
 
 public class Ttcn3Sensor implements ProjectSensor {
-	private static final String REPORT_PATH_KEY = "sonar.titan.reportPaths";
+	private static final String REPORT_PATH_KEY = "sonar.ttcn3.reportPaths";
+	private static final String ENABLE_OOP = "sonar.ttcn3.enableOOP";
+	private static final String ENABLE_REALTIME = "sonar.ttcn3.enableRealtime";
+
 	private static final String DEFAULT_REPORT_PATH = ".titan_compile"; 
 	private static final String REPORT_REGEX_DEF = "sonar.titan.regex";
 	private static final String DEFAULT_REGEX_DEF = "(?<file>[^:]+):::(?<line>[0-9]+):::(?<message>.+):::(?<rulekey>.+)";
@@ -136,6 +139,8 @@ public class Ttcn3Sensor implements ProjectSensor {
 			config.suppressStdout = true;
 			config.ttcnErrorMarkers = false;
 			config.ttcnWarningMarkers = false;
+			config.oopEnabled = context.config().getBoolean(ENABLE_OOP).orElse(false);
+			config.realtimeEnabled = context.config().getBoolean(ENABLE_REALTIME).orElse(false);
 			final CommandLineExecutor executor = new CommandLineExecutor(config);
 			String analyzerOutput = "";
 			try {

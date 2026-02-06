@@ -66,6 +66,17 @@ sonar.host.url=http://your_sonarqube_host:9000
 sonar.projectKey=project_key
 sonar.token=your_analysis_token
 ```
+
+The following optional settings can be used:
+
+```
+# enable/disable OOP extension
+sonar.ttcn3.enableOOP=true
+
+# enable/disable the Realtime extension
+sonar.ttcn3.enableRealtime=true
+```
+
 Run **sonar-scanner** for the analysis.
 
 ### Using the analyzer externally
