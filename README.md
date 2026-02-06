@@ -51,6 +51,8 @@ cp target/titan-sonar-plugin-x.y.x.jar ${path_to_sonarqube}/extensions/plugins/
 -Xmx4G -Xss8m
 ```
 
+This setting is needed for the **titan** compiler and static analyzer, not for the plugin itself, so you should use it for both of the options below.
+
 A quick guide to use the plugin with **sonar-scanner-cli**:
 
 ### Using the bundled compiler and analyzer
