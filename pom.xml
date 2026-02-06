@@ -5,13 +5,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.sonarttcn3</groupId>
 	<artifactId>sonarqube-ttcn3-plugin</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.9</version>
 	<packaging>sonar-plugin</packaging>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<sonar.apiVersion>10.11.0.2468</sonar.apiVersion>
-		<sonar.testingHarnessVersion>10.7.0.96327</sonar.testingHarnessVersion>
+		<sonar.apiVersion>11.0.0.2664</sonar.apiVersion>
+		<sonar.testingHarnessVersion>11.0.0.2664</sonar.testingHarnessVersion>
 		<jdk.min.version>17</jdk.min.version>
 		<sonar.sources>src/main/java,src/main/js</sonar.sources>
 		<maven.compiler.source>17</maven.compiler.source>

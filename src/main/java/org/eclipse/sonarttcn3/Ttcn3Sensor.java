@@ -7,14 +7,15 @@
 package org.eclipse.sonarttcn3;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.sonarttcn3.languages.Ttcn3Language;
 import org.eclipse.sonarttcn3.rules.TitanRulesDefinition;
 import org.eclipse.titan.lsp.commandline.CommandLineConfiguration;
 import org.eclipse.titan.lsp.commandline.CommandLineExecutor;
@@ -39,7 +40,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 	private static final String DEFAULT_REPORT_PATH = ".titan_compile"; 
 	private static final String REPORT_REGEX_DEF = "sonar.titan.regex";
 	private static final String DEFAULT_REGEX_DEF = "(?<file>[^:]+):::(?<line>[0-9]+):::(?<message>.+):::(?<rulekey>.+)";
-	private static final String TTCN3 = "ttcn3";
+	private static final String TTCN3 = Ttcn3Language.KEY;
 	
 	private static final String MATCH_GROUP_FILE = "file";
 	private static final String MATCH_GROUP_LINE = "line";
@@ -65,8 +66,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 	@Override
 	public void describe(SensorDescriptor descriptor) {
 		descriptor
-			.name(getClass().getName())
-			.onlyOnLanguage(TTCN3);
+			.name(getClass().getName());
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 		boolean isMissing = false;
 		for (final String group : groups) {
 			if (!regex.contains("(?<" + group + ">")) {
-				LOG.error("Mandatory named capture group `{0}` is missing from regex", group);
+				LOG.error("Mandatory named capture group `{}` is missing from regex", group);
 				isMissing = true;
 			}
 		}
@@ -107,7 +107,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 
 	protected void processReport() {
 	    String reportRegex = getRegex();
-	    LOG.info("Using regex {0}", reportRegex);
+	    LOG.debug("Using regex {}", reportRegex);
 
 	    pattern = null;
 	    try {
@@ -120,20 +120,29 @@ public class Ttcn3Sensor implements ProjectSensor {
 			return;
 		}
 
-	    LOG.info("Report path: {0}", getReportPath());
 		final String reportPath = getReportPath();
+	    LOG.info("Report path: {}", reportPath);
 
-	    fs = context.fileSystem();
+		fs = context.fileSystem();
 	    p = fs.predicates();
-		final InputFile reportFile = fs.inputFile(p.hasPath(reportPath));
-		if (reportFile == null) {
-			LOG.info("Report file `{0}` not found, executing compiler", reportFile);
+	    final Path baseDir = context.fileSystem().baseDir().toPath();
+		final Path report = baseDir.resolve(reportPath);
+
+		if (!Files.exists(report)) {
+			LOG.info("Report file `{}` not found, executing compiler", report);
 			final CommandLineConfiguration config = new CommandLineConfiguration();
 			config.rootFolder = fs.baseDir().getAbsolutePath();
 			config.saFormat = "%f:::%l:::%m:::%k";
 			config.suppressStdout = true;
+			config.ttcnErrorMarkers = false;
+			config.ttcnWarningMarkers = false;
 			final CommandLineExecutor executor = new CommandLineExecutor(config);
-			final String analyzerOutput = executor.runCommandLineAnalyzer();
+			String analyzerOutput = "";
+			try {
+				analyzerOutput = executor.runCommandLineAnalyzer();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			try (final BufferedReader br = new BufferedReader(new StringReader(analyzerOutput))) {
 				processReader(br);
@@ -145,13 +154,11 @@ public class Ttcn3Sensor implements ProjectSensor {
 			return;
 		}
 
-		for (final InputFile file : fs.inputFiles(p.hasFilename(getReportPath()))) {
-			try (final BufferedReader br = new BufferedReader(new FileReader(file.toString()))) {
-				processReader(br);
-			}
-	        catch (IOException e) {
-	            LOG.error("Error while reading compilation file.");
-	        }
+		try (final BufferedReader br = Files.newBufferedReader(report)) {
+			processReader(br);
+		}
+		catch (IOException e) {
+			LOG.error("Error while reading compilation file.");
 		}
 	}
 
@@ -178,7 +185,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 					return;
 				}
 			} catch (NumberFormatException e) {
-				LOG.warn("Illegal line number {0}", lineNr);
+				LOG.warn("Illegal line number {}", lineNr);
 				return;
 			}
 			
@@ -199,9 +206,9 @@ public class Ttcn3Sensor implements ProjectSensor {
 						.overrideSeverity(Severity.MINOR)
 						.save();
 				} catch (IllegalArgumentException e) {
-					LOG.warn("File `{0}` has no line number {1}", filename, lineNr);
+					LOG.warn("File `{}` has no line number {}", filename, lineNr);
 				}
 			}
-		}
+		} 
 	}
 }
