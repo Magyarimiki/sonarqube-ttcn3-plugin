@@ -27,6 +27,7 @@ public class TitanRulesDefinition implements RulesDefinition {
 		rules.add(repository.createRule("Titanium")
 			.setName("Titanium")
 			.setHtmlDescription("Generic rule for titanium code smells")
+			.setSeverity(Severity.MINOR)
 			.addTags("titan"));
 		
 		for (final TitaniumRule titaniumRule : TitaniumRules.importedRules) {
