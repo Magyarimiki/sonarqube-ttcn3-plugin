@@ -1,0 +1,4 @@
+# Set these config options and run sonar-scanner in the test/ directory
+sonar.host.url=http://localhost:9000
+sonar.projectKey=your_project_name
+sonar.token=sonar_token_for_the_analysis

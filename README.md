@@ -44,6 +44,10 @@ cp target/titan-sonar-plugin-x.y.x.jar ${path_to_sonarqube}/extensions/plugins/
 
  - restart Sonarqube to load the plugin.
 
+## Testing the plugin
+
+To test the plugin functionality, see the *readme* file under the **test/** directory.
+
 ## Using the plugin
 *Note*: for very large projects you may need to adjust the java heap and stack size. Set the environment variable **SONAR_SCANNER_OPTS**:
 

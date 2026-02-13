@@ -1,0 +1,50 @@
+/**
+ * @desc A simple (and completely meaningless) TTCN3 test code for the sonarqube ttcn3 plugin
+ * @url https://github.com/Magyarimiki/sonarqube-ttcn3-plugin
+ */
+module PluginTest {
+    private const integer unusedConst := 0;
+    type component CT {};
+
+    /** This function has an empty statement block */
+    function func_with_empty_statement_block() {
+
+    }
+
+    /** this function contains unreachable code */
+    private function func_with_unreachable_code(integer num) return integer {
+        if (num == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+
+        return 99;
+    }
+
+    /** testing the @lazy modifier */
+    private function lazy_param(@lazy integer lazy, integer other) return integer {
+        if (lazy == 0) {
+            return 0;
+        } else {
+            return lazy;
+        }
+    }
+
+    /** a simple test case */
+    testcase tc1() runs on CT {
+        func_with_empty_statement_block();
+        var integer result1 := func_with_unreachable_code(2);
+
+        const integer fortyTwo := 42;
+        var integer result2 := lazy_param(1, fortyTwo);
+
+        if (result1 == result2) {
+            setverdict(fail);
+        }
+    }
+
+    control {
+        execute(tc1());
+    }
+}
