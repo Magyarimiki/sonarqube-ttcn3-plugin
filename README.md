@@ -1,6 +1,4 @@
 # Titan SonarQube plugin
-*The project is in experimental phase.*
-
 Thanks for your interest in this project.
 
 ## Project description
@@ -60,7 +58,7 @@ This setting is needed for the **titan** compiler and static analyzer, not for t
 A quick guide to use the plugin with **sonar-scanner-cli**:
 
 ### Using the bundled compiler and analyzer
-*Note: this method cannot be used for very large projects, where the compilation and analysis takes more that approx 2 minutes.*
+*Note: this method should not be used for very large projects, where the compilation and analysis takes more that approx 2 minutes.*
 
 The easiest way is to use the bundled analyzer.
 Place a **sonar-project.properties** file to your project root:
