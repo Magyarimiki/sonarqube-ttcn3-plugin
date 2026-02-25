@@ -20,17 +20,19 @@ The plugin uses the **Titan** compiler and its bundled **Titanium** static analy
 
 Make sure to clone the repository into the root directory of the plugin source.
 
+*Note: you should skip the Titan build test as it is broken at the moment.*
+
 ```
  cd sonarqube-ttcn3-plugin
  git clone https://gitlab.eclipse.org/eclipse/titan/titan.language-server.git
- cd titan.language-server/lsp
- mvn clean install
+ cd titan.language-server
+ mvn clean install -DskipTests
 ```
 
  - Compile the plugin
 
 ```
- cd ../..
+ cd ..
  mvn clean package
 ```
 

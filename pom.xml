@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.sonarttcn3</groupId>
 	<artifactId>sonarqube-ttcn3-plugin</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.11</version>
 	<packaging>sonar-plugin</packaging>
 
 	<properties>
@@ -62,7 +62,7 @@
 						</goals>
 						<configuration>
 							<sources>
-								<source>titan.language-server/lsp/target/generated-sources/annotations/TitanRules/</source>
+								<source>titan.language-server/target/generated-sources/annotations/TitanRules/</source>
 							</sources>
 						</configuration>
 					</execution>
