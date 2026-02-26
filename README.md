@@ -9,6 +9,10 @@ The plugin uses the **Titan** compiler and its bundled **Titanium** static analy
 
 
 ## Building and installing the plugin
+*Note:* The plugin depends on the external Titanium static analyzer. It is possible that Titanium is
+updated with new code smells or it has some fixes while the plugin itself is not updated. Because of this,
+it is recommended to check for Titanium updates from time to time and rebuild the plugin if needed to
+import the changes.
 
  - clone the repository
 
