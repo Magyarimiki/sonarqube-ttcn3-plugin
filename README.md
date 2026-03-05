@@ -8,6 +8,11 @@ The plugin uses the **Titan** compiler and its bundled **Titanium** static analy
 [Read more about Titan and Titanium](https://projects.eclipse.org/projects/tools.titan)
 
 
+## Installing the plugin using the prebuilt jar
+Simply download the jar file **sonarqube-ttcn3-plugin-x.y.z.jar**, copy it to the
+**/path/to/sonarqube/extensions/plugins** directory  and restart the
+server.
+
 ## Building and installing the plugin
 *Note:* The plugin depends on the external Titanium static analyzer. It is possible that Titanium is
 updated with new code smells or it has some fixes while the plugin itself is not updated. Because of this,
