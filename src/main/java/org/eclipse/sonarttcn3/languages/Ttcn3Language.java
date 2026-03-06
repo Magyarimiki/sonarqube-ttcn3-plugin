@@ -6,25 +6,22 @@
  ******************************************************************************/
 package org.eclipse.sonarttcn3.languages;
 
+import org.eclipse.sonarttcn3.settings.Ttcn3Properties;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
 public class Ttcn3Language extends AbstractLanguage {
 	public static final String NAME = "TTCN3";
 	public static final String KEY = "ttcn3";
+	private final Configuration configuration;
 	
-	public static String[] suffixes = new String[] { 
-		".ttcn",
-		".ttcn3",
-		".ttcnpp",
-		".asn"
-	};
-
-	public Ttcn3Language() {
+	public Ttcn3Language(Configuration configuration) {
 	    super(KEY, NAME);
+		this.configuration = configuration;
 	}
 
 	@Override
 	public String[] getFileSuffixes() {
-		return suffixes;
+		return configuration.getStringArray(Ttcn3Properties.FILE_SUFFIXES_KEY);
 	}
 }

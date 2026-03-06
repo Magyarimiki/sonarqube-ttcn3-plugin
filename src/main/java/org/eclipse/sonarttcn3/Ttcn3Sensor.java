@@ -68,14 +68,14 @@ public class Ttcn3Sensor implements ProjectSensor {
 	
 	@Override
 	public void describe(SensorDescriptor descriptor) {
-		descriptor
-			.name(getClass().getName());
+		descriptor.name(getClass().getName());
+		descriptor.onlyOnLanguage(TTCN3);
 	}
 
 	@Override
 	public void execute(SensorContext context) {
 		this.context = context;
-		LOG.info("Eclipse Titan TTCN3 Sonarqube plugin");
+		LOG.info("TTCN3 Sonarqube plugin");
 		
 		processReport();
 	}

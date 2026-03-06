@@ -78,6 +78,7 @@ Place a **sonar-project.properties** file to your project root:
 sonar.host.url=http://your_sonarqube_host:9000
 sonar.projectKey=project_key
 sonar.token=your_analysis_token
+sonar.lang.patterns.ttcn3=**/*.ttcn,*/**.ttcn3,*/**.ttcnpp,*/**.asn
 ```
 
 The following optional settings can be used:

@@ -22,9 +22,10 @@ public class TitanPlugin implements Plugin {
 			Ttcn3Language.class,
 			Ttcn3QualityProfile.class,
 			TitanRulesDefinition.class,
-			Ttcn3Sensor.class
+			Ttcn3Sensor.class,
+			Ttcn3Properties.getProperties()
 		);
 
-		context.addExtension(Ttcn3Properties.getProperties());
+		// context.addExtension(;
 	}
 }

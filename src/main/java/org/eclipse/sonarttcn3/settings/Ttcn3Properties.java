@@ -10,11 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.resources.Qualifiers;
 
 public class Ttcn3Properties {
 	public static final String FILE_SUFFIXES_KEY = "sonar.ttcn3.file.suffixes";
-	public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".ttcn";
+	public static final String FILE_SUFFIXES_DEFAULT_VALUE = ".ttcn,.ttcn3,.asn,.ttcnpp";
 	
 	private Ttcn3Properties() {
 		
@@ -22,12 +21,10 @@ public class Ttcn3Properties {
 	
 	public static List<PropertyDefinition> getProperties() {
 	    return Arrays.asList(PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-	      .multiValues(true)
-	      .defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
-	      .category("Ttcn3")
-	      .name("Ttcn3")
-	      .description("Ttcn3")
-	      .onQualifiers(Qualifiers.PROJECT)
-	      .build());
+			.defaultValue(FILE_SUFFIXES_DEFAULT_VALUE)
+			.name("Ttcn3 file suffixes")
+			.description("List of ttcn3 file suffixes")
+			.multiValues(true)
+		    .build());
 	  }
 }
