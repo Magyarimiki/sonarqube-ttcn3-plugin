@@ -18,14 +18,10 @@ import org.sonar.api.Plugin;
 public class TitanPlugin implements Plugin {
 	@Override
 	public void define(Context context) {
-		context.addExtensions(
-			Ttcn3Language.class,
-			Ttcn3QualityProfile.class,
-			TitanRulesDefinition.class,
-			Ttcn3Sensor.class,
-			Ttcn3Properties.getProperties()
-		);
+		context.addExtensions(Ttcn3Language.class, Ttcn3QualityProfile.class);
+		context.addExtensions(Ttcn3Properties.getProperties());
 
-		// context.addExtension(;
+		context.addExtension(TitanRulesDefinition.class);
+		context.addExtension(Ttcn3Sensor.class);
 	}
 }

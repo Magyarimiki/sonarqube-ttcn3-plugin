@@ -17,6 +17,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.sonarttcn3.languages.Ttcn3Language;
 import org.eclipse.sonarttcn3.rules.TitanRulesDefinition;
+import org.eclipse.sonarttcn3.settings.Ttcn3Properties;
 import org.eclipse.titan.lsp.commandline.CommandLineConfiguration;
 import org.eclipse.titan.lsp.commandline.CommandLineExecutor;
 import org.slf4j.Logger;
@@ -37,8 +38,6 @@ import org.sonar.api.scanner.sensor.ProjectSensor;
 
 public class Ttcn3Sensor implements ProjectSensor {
 	private static final String REPORT_PATH_KEY = "sonar.ttcn3.reportPaths";
-	private static final String ENABLE_OOP = "sonar.ttcn3.enableOOP";
-	private static final String ENABLE_REALTIME = "sonar.ttcn3.enableRealtime";
 
 	private static final String DEFAULT_REPORT_PATH = ".titan_compile"; 
 	private static final String REPORT_REGEX_DEF = "sonar.titan.regex";
@@ -69,14 +68,14 @@ public class Ttcn3Sensor implements ProjectSensor {
 	@Override
 	public void describe(SensorDescriptor descriptor) {
 		descriptor.name(getClass().getName());
-		descriptor.onlyOnLanguage(TTCN3);
+		descriptor.onlyOnLanguage(Ttcn3Language.KEY);
 	}
 
 	@Override
 	public void execute(SensorContext context) {
 		this.context = context;
 		LOG.info("TTCN3 Sonarqube plugin");
-		
+
 		processReport();
 	}
 	
@@ -139,8 +138,8 @@ public class Ttcn3Sensor implements ProjectSensor {
 			config.suppressStdout = true;
 			config.ttcnErrorMarkers = false;
 			config.ttcnWarningMarkers = false;
-			config.oopEnabled = context.config().getBoolean(ENABLE_OOP).orElse(false);
-			config.realtimeEnabled = context.config().getBoolean(ENABLE_REALTIME).orElse(false);
+			config.oopEnabled = context.config().getBoolean(Ttcn3Properties.ENABLE_OOP_KEY).orElse(false);
+			config.realtimeEnabled = context.config().getBoolean(Ttcn3Properties.ENABLE_REALTIME_KEY).orElse(false);
 			final CommandLineExecutor executor = new CommandLineExecutor(config);
 			String analyzerOutput = "";
 			try {

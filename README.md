@@ -78,13 +78,15 @@ Place a **sonar-project.properties** file to your project root:
 sonar.host.url=http://your_sonarqube_host:9000
 sonar.projectKey=project_key
 sonar.token=your_analysis_token
-sonar.lang.patterns.ttcn3=**/*.ttcn,*/**.ttcn3,*/**.ttcnpp,*/**.asn
 ```
 
 The following optional settings can be used:
 
 ```
-# enable/disable OOP extension
+# specify TTCN3 file extensions
+sonar.ttcn3.file.suffixes=.ttcn,.ttcn3,.ttcnpp,.asn
+
+# enable/disable OOP extension 
 sonar.ttcn3.enableOOP=true
 
 # enable/disable the Realtime extension
