@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.sonarttcn3.languages.Ttcn3Language;
+import org.eclipse.sonarttcn3.measures.ModuleMetrics;
+import org.eclipse.sonarttcn3.measures.ProjectMetrics;
 import org.eclipse.sonarttcn3.rules.TitanRulesDefinition;
 import org.eclipse.sonarttcn3.settings.Ttcn3Properties;
 import org.eclipse.titan.lsp.commandline.CommandLineConfiguration;
@@ -32,6 +34,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.scanner.sensor.ProjectSensor;
@@ -42,12 +45,15 @@ public class Ttcn3Sensor implements ProjectSensor {
 	private static final String DEFAULT_REPORT_PATH = ".titan_compile"; 
 	private static final String REPORT_REGEX_DEF = "sonar.titan.regex";
 	private static final String DEFAULT_REGEX_DEF = "(?<file>[^:]+):::(?<line>[0-9]+):::(?<message>.+):::(?<rulekey>.+)";
+	private static final String DEFAULT_METRIC_REGEX_DEF = "(?<file>[^-]*)---(?<metric>[^-]+)---(?<value>[0-9]+)";
 	private static final String TTCN3 = Ttcn3Language.KEY;
 	
 	private static final String MATCH_GROUP_FILE = "file";
 	private static final String MATCH_GROUP_LINE = "line";
 	private static final String MATCH_GROUP_RULEKEY = "rulekey";
 	private static final String MATCH_GROUP_MESSAGE = "message";
+	private static final String MATCH_GROUP_METRIC_NAME = "metric";
+	private static final String MATCH_GROUP_METRIC_VALUE = "value";
 
 	private static final Logger LOG = LoggerFactory.getLogger(Ttcn3Sensor.class);
 	
@@ -56,6 +62,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 	private final ActiveRules activeRules;
 
 	private Pattern pattern;
+	private Pattern metricPattern;
 	private FileSystem fs;
 	private FilePredicates p;
 	
@@ -112,8 +119,10 @@ public class Ttcn3Sensor implements ProjectSensor {
 	    LOG.debug("Using regex {}", reportRegex);
 
 	    pattern = null;
+		metricPattern = null;
 	    try {
 	    	pattern = Pattern.compile(reportRegex);
+			metricPattern = Pattern.compile(DEFAULT_METRIC_REGEX_DEF);
 	    } catch (PatternSyntaxException e) {
 	    	LOG.error("Failed to compile report regex.");
 	    	return;
@@ -138,6 +147,7 @@ public class Ttcn3Sensor implements ProjectSensor {
 			config.suppressStdout = true;
 			config.ttcnErrorMarkers = false;
 			config.ttcnWarningMarkers = false;
+			config.showMetrics = true;
 			config.oopEnabled = context.config().getBoolean(Ttcn3Properties.ENABLE_OOP_KEY).orElse(false);
 			config.realtimeEnabled = context.config().getBoolean(Ttcn3Properties.ENABLE_REALTIME_KEY).orElse(false);
 			final CommandLineExecutor executor = new CommandLineExecutor(config);
@@ -214,5 +224,39 @@ public class Ttcn3Sensor implements ProjectSensor {
 				}
 			}
 		} 
+		
+		final Matcher metricMatcher = metricPattern.matcher(inputLine);
+		if (metricMatcher.matches()) {
+			final String file = metricMatcher.group(MATCH_GROUP_FILE);
+			final String metric = metricMatcher.group(MATCH_GROUP_METRIC_NAME);
+			final String value = metricMatcher.group(MATCH_GROUP_METRIC_VALUE);
+			
+			if (file.isEmpty()) {
+				// Project metric
+				Metric<Integer> projectMetric = ProjectMetrics.getMetric(metric);
+				if (projectMetric != null) {
+					context.<Integer>newMeasure()
+						.forMetric(projectMetric)
+						.withValue(Integer.parseInt(value))
+						.on(context.project())
+						.save();
+				}
+			} else {
+				// file metric
+				Metric<Integer> moduleMetric = ModuleMetrics.getMetric(metric);
+				if (moduleMetric != null) {
+					final InputFile input = fs.inputFile(fs.predicates().hasRelativePath(file));
+					if (input != null) {
+						context.<Integer>newMeasure()
+							.forMetric(moduleMetric)
+							.withValue(Integer.parseInt(value))
+							.on(input)
+							.save();
+					} else {
+						LOG.error("File not found: " + file);
+					}
+				}
+			}
+		}
 	}
 }
