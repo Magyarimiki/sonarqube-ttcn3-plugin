@@ -12,6 +12,8 @@ import org.eclipse.sonarttcn3.measures.ModuleMetrics;
 import org.eclipse.sonarttcn3.measures.ProjectMetrics;
 import org.eclipse.sonarttcn3.rules.TitanRulesDefinition;
 import org.eclipse.sonarttcn3.settings.Ttcn3Properties;
+import org.eclipse.sonarttcn3.web.CustomMetricsDefinition;
+
 import org.sonar.api.Plugin;
 
 /**
@@ -22,6 +24,7 @@ public class TitanPlugin implements Plugin {
 	public void define(Context context) {
 		context.addExtensions(Ttcn3Language.class, Ttcn3QualityProfile.class);
 		context.addExtensions(Ttcn3Properties.getProperties());
+		context.addExtension(CustomMetricsDefinition.class);
 		context.addExtension(ProjectMetrics.class);
 		context.addExtension(ModuleMetrics.class);
 		context.addExtension(TitanRulesDefinition.class);

@@ -5,8 +5,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.sonarttcn3</groupId>
 	<artifactId>sonarqube-ttcn3-plugin</artifactId>
-	<name>Sonar TTCN3</name>
-	<version>0.0.13</version>
+	<name>Sonarqube TTCN3 plugin</name>
+	<version>0.0.14</version>
 	<packaging>sonar-plugin</packaging>
 
 	<properties>
@@ -51,6 +51,11 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -78,6 +83,7 @@
 				<version>1.25.1.3002</version>
 				<extensions>true</extensions>
 				<configuration>
+					<pluginKey>ttcn3</pluginKey>
 					<pluginDescription>Sonar ttcn3</pluginDescription>
 					<pluginClass>org.eclipse.sonarttcn3.TitanPlugin</pluginClass>
 				</configuration>
