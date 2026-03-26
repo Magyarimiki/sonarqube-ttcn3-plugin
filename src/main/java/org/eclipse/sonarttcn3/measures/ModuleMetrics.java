@@ -71,8 +71,8 @@ public class ModuleMetrics implements Metrics {
             .create();
 
     public static final Metric<Integer> TIMES_IMPORTED =
-        new Metric.Builder("TIMES_IMPORTED", "Import count", Metric.ValueType.INT)
-            .setDescription("Count of the module was imported by other modules")
+        new Metric.Builder("TIMES_IMPORTED", "Imported count", Metric.ValueType.INT)
+            .setDescription("Times the module was imported by other modules")
             .setDirection(Metric.DIRECTION_BETTER)
             .setDomain("Ttcn3Plugin")
             .setQualitative(false)

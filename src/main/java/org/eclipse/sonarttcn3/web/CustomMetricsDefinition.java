@@ -18,7 +18,7 @@ public class CustomMetricsDefinition implements PageDefinition {
     public void define(Context context) {
         context.addPage(
             Page.builder("ttcn3/module_metrics")
-                .setName("Module metrics")
+                .setName("TTCN3 module metrics")
                 .setScope(Scope.COMPONENT)
                 .setComponentQualifiers(PROJECT)
                 .build()
