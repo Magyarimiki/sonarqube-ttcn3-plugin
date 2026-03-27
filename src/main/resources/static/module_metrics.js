@@ -2,7 +2,8 @@ const uiPageSize = 10;
 let uiCurrentPage = 1;
 let totalPages = 0;
 let allComponents = [];
-let handlers = false;
+let handlersSet = false;
+let projectKey;
 
 const metrics = new Map([
     [ 'NOF_STATEMENTS', 'Number of statements' ],
@@ -24,6 +25,7 @@ const metrics = new Map([
 ]);
 
 const container = document.createElement('div');
+container.id = 'metricPage';
 container.style.padding = '12px';
 container.textAlign = 'center';
 
@@ -118,9 +120,10 @@ function getProjectKey() {
 }
 
 async function loadMetrics() {
+    allComponents = [];
     let p = 1;
     const ps = 100;
-    const projectKey = getProjectKey();
+    projectKey = getProjectKey();
     let count = 0;
 
     do {
@@ -137,7 +140,7 @@ async function loadMetrics() {
         count += ps;
         p++;
     } while (count < total);
-    totalPages = Math.ceil(total / uiPageSize);
+    totalPages = Math.ceil(allComponents.length / uiPageSize);
 }
 
 function renderTable(components) {
@@ -222,15 +225,50 @@ function setPagingButtonState() {
     buttonForward.disabled = uiCurrentPage === totalPages;
 }
 
-window.registerExtension('ttcn3/module_metrics', async function (options) {
-    options.el.innerHTML = `<h2>Loading</h2>`;
-    await loadMetrics();
-    if (allComponents.length === 0) {
-        options.el.innerHTML = `<h2>No measures available (missing analysis or non-TTCN3 project)</h2>`;
+async function loadAndShowMetricsPage(pageElement) {
+    const qps = await fetch(
+        `/api/qualityprofiles/search?language=ttcn3`
+    );
+    const data = await qps.json();
+    if (!data.profiles) {
+        pageElement.innerHTML = `<h2>Error fetching quality profiles</h2>`;
         return;
     }
-    if (!handlers) {
-        handlers = true;
+
+    let hasTtcn3 = false;
+    let pk = getProjectKey();
+    for (const profile of data.profiles) {
+        const projects = await fetch(
+            `/api/qualityprofiles/projects?key=${profile.key}`
+        );
+        const data = await projects.json();
+        if (!data.results) {
+            continue;
+        }
+        if (data.results.find(proj => proj.key === pk)) {
+            hasTtcn3 = true;
+            break;
+        }
+    };
+    if (!hasTtcn3) {
+        pageElement.innerHTML = `<h2>Not a TTCN3 project</h2>`;
+        return;
+    }
+    await loadMetrics();
+    if (allComponents.length === 0) {
+        pageElement.innerHTML = `<h2>No measures available (missing analysis?)</h2>`;
+        return;
+    }
+    renderTable(getComponentPage() || []);
+    
+    pageElement.innerHTML = '';
+    pageElement.appendChild(container);
+}
+
+window.registerExtension('ttcn3/module_metrics', async function (options) {
+    loadAndShowMetricsPage(options.el);
+    if (!handlersSet) {
+        handlersSet = true;
         buttonForward.addEventListener('click', () => {
             if (uiCurrentPage < totalPages) {
                 uiCurrentPage++;
@@ -245,10 +283,17 @@ window.registerExtension('ttcn3/module_metrics', async function (options) {
             }
             setPagingButtonState();
         });
+
+        new IntersectionObserver(async e => {
+            const e1 = e.find(elem => elem.target.id === container.id);
+            if (e1?.isIntersecting) {
+                if (projectKey !== getProjectKey()) {
+                    loadAndShowMetricsPage(options.el);
+                    projectKey = getProjectKey();
+                }
+            }
+        }).observe(container);
     }
-    renderTable(getComponentPage() || []);
-    
-    options.el.innerHTML = '';
-    options.el.appendChild(container);
+
     return;
 });
