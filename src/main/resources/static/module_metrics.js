@@ -2,6 +2,7 @@ const uiPageSize = 10;
 let uiCurrentPage = 1;
 let totalPages = 0;
 let allComponents = [];
+let handlers = false;
 
 const metrics = new Map([
     [ 'NOF_STATEMENTS', 'Number of statements' ],
@@ -228,20 +229,23 @@ window.registerExtension('ttcn3/module_metrics', async function (options) {
         options.el.innerHTML = `<h2>No measures available (missing analysis or non-TTCN3 project)</h2>`;
         return;
     }
-    buttonForward.addEventListener('click', () => {
-        if (uiCurrentPage < totalPages) {
-            uiCurrentPage++;
-            renderTable(getComponentPage() || []);        
-        }
-        setPagingButtonState();
-    });
-    buttonBack.addEventListener('click', () => {
-        if (uiCurrentPage > 1) {
-            uiCurrentPage--;
-            renderTable(getComponentPage() || []);        
-        }
-        setPagingButtonState();
-    });
+    if (!handlers) {
+        handlers = true;
+        buttonForward.addEventListener('click', () => {
+            if (uiCurrentPage < totalPages) {
+                uiCurrentPage++;
+                renderTable(getComponentPage() || []);        
+            }
+            setPagingButtonState();
+        });
+        buttonBack.addEventListener('click', () => {
+            if (uiCurrentPage > 1) {
+                uiCurrentPage--;
+                renderTable(getComponentPage() || []);        
+            }
+            setPagingButtonState();
+        });
+    }
     renderTable(getComponentPage() || []);
     
     options.el.innerHTML = '';
