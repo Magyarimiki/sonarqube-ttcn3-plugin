@@ -7,6 +7,13 @@ The plugin uses the **Titan** compiler and its bundled **Titanium** static analy
 
 [Read more about Titan and Titanium](https://projects.eclipse.org/projects/tools.titan)
 
+## Features
+
+ - static analysis of TTCN3 code. The analysis is performed by the **Titanium** static analyzer. Currently, 36 sonarqube rules are provided
+ - A default quality profile for TTCN3 (called *Titanium*) containing all rules provided by the plugin
+ - project level metrics collected under the *Measures* tab on the project dashboard
+ - TTCN3 module level metrics collected under a custom view
+
 
 ## Installing the plugin using the prebuilt jar
 Simply download the jar file **sonarqube-ttcn3-plugin-x.y.z.jar**, copy it to the
